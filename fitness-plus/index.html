@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fitness+ Study</title>
+<style>
+/* Tokens copied from the "Fitness+ Reference" design system (tokens.json v4). Dark first. */
+/* Layout: one content column of shelves, floating glass tab bar above it. */
+:root {
+  color-scheme: dark;
+  --ground: #000000; --surface: #1c1c1e; --fill: #2c2c2e;
+  --ink: #ffffff; --ink-muted: #8e8e93; --accent: var(--ink); --on-accent: #000000;
+  --move: #fa114f; --exercise: #92e82a; --stand: #00d9ff;
+  --ring-ground: #000000; --ring-move: #fa114f; --ring-exercise: #92e82a; --ring-stand: #00d9ff;
+  --scrim: rgba(0,0,0,0.56); --on-scrim: #ffffff;
+  --glass-tint: rgba(28,28,30,0.72); --glass-edge: rgba(0,0,0,0.6);
+  --shadow-glass: 0 1px 2px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.5);
+  --shadow-specular: inset 0 1px 0 rgba(255,255,255,0.18);
+  --focus-ring: 0 0 0 2px #000000, 0 0 0 4px #ffffff;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+  --font-rounded: ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --space-1: 4px; --space-2: 8px; --space-3: 16px; --space-4: 24px; --space-5: 32px;
+  --radius-sm: 10px; --radius-lg: 22px; --radius-pill: 999px;
+}
+@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) {
+  color-scheme: light;
+  --ground: #f2f2f7; --surface: #ffffff; --fill: #e5e5ea;
+  --ink: #000000; --ink-muted: #6c6c70; --on-accent: #ffffff;
+  --move: #d70f46; --exercise: #3f7d0c; --stand: #0a7fa8;
+  --glass-tint: rgba(255,255,255,0.72); --glass-edge: rgba(0,0,0,0.14);
+  --shadow-glass: 0 1px 2px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.12);
+  --shadow-specular: inset 0 1px 0 rgba(255,255,255,0.8);
+  --focus-ring: 0 0 0 2px #f2f2f7, 0 0 0 4px #000000;
+} }
+:root[data-theme="light"] {
+  color-scheme: light;
+  --ground: #f2f2f7; --surface: #ffffff; --fill: #e5e5ea;
+  --ink: #000000; --ink-muted: #6c6c70; --on-accent: #ffffff;
+  --move: #d70f46; --exercise: #3f7d0c; --stand: #0a7fa8;
+  --glass-tint: rgba(255,255,255,0.72); --glass-edge: rgba(0,0,0,0.14);
+  --shadow-glass: 0 1px 2px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.12);
+  --shadow-specular: inset 0 1px 0 rgba(255,255,255,0.8);
+  --focus-ring: 0 0 0 2px #f2f2f7, 0 0 0 4px #000000;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; font: 400 17px/22px var(--font-sans); background: var(--ground); color: var(--ink); -webkit-font-smoothing: antialiased; }
+main { max-width: 1080px; margin: 0 auto; padding-block: var(--space-4) 120px; display: grid; gap: var(--space-5); }
+h1, h2, h3, p { margin: 0; }
+.pad { padding-inline: var(--space-3); }
+.muted { color: var(--ink-muted); }
+:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+/* Header */
+.top { display: grid; gap: var(--space-3); }
+.eyebrow { font: 600 13px/18px var(--font-sans); color: var(--ink-muted); }
+.large-title { font: 700 34px/41px var(--font-sans); text-wrap: balance; }
+
+/* Hero: featured workout on artwork, metadata below */
+.hero { display: grid; gap: var(--space-3); }
+.hero-art { position: relative; aspect-ratio: 16 / 9; max-height: 460px; width: 100%; border-radius: var(--radius-lg); overflow: hidden; background: var(--fill); }
+.hero-art svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.hero-text { display: grid; gap: var(--space-1); }
+.hero-title { font: 700 28px/34px var(--font-sans); }
+.actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+
+/* Button, chip, segmented control (bundle.css) */
+.btn { display: inline-flex; align-items: center; gap: var(--space-2); font: 600 17px/22px var(--font-sans); border: 0; border-radius: var(--radius-pill); padding: 13px 22px; min-height: 48px; cursor: pointer; transition: transform 150ms ease-out; }
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: var(--accent); color: var(--on-accent); }
+.btn-secondary { background: var(--fill); color: var(--ink); }
+.chips { display: flex; gap: var(--space-2); overflow-x: auto; scrollbar-width: none; padding-block: 4px; }
+.chip { flex: none; font: 600 15px/20px var(--font-sans); padding: 8px 14px; border: 0; border-radius: var(--radius-sm); background: var(--fill); color: var(--ink); cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+.seg { display: flex; padding: 3px; border-radius: var(--radius-pill); background: var(--fill); max-width: 480px; }
+.seg button { flex: 1; font: 600 13px/18px var(--font-sans); padding: 7px 12px; border: 0; border-radius: var(--radius-pill); background: none; color: var(--ink); cursor: pointer; }
+.seg button[aria-selected="true"] { background: var(--surface); box-shadow: 0 0 0 1px var(--glass-edge); }
+
+/* Shelf + workout card */
+.shelf { display: grid; gap: var(--space-3); }
+.shelf-head { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-3); }
+.shelf-title { font: 700 22px/28px var(--font-sans); }
+.row { display: flex; gap: var(--space-3); overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--space-3); padding: 4px var(--space-3) var(--space-2); scrollbar-width: none; }
+.row::-webkit-scrollbar, .chips::-webkit-scrollbar { display: none; }
+.card { flex: none; width: 240px; scroll-snap-align: start; display: grid; gap: var(--space-2); border-radius: var(--radius-lg); color: inherit; text-decoration: none; }
+.card-art { position: relative; aspect-ratio: 16 / 9; border-radius: var(--radius-lg); overflow: hidden; background: var(--fill); display: flex; align-items: flex-end; padding: var(--space-3); font: 600 13px/18px var(--font-sans); }
+.card-check { position: absolute; top: var(--space-2); right: var(--space-2); width: 28px; height: 28px; display: grid; place-items: center; border-radius: var(--radius-pill); background: var(--scrim); color: var(--on-scrim); }
+.card-text { display: grid; gap: 2px; padding-inline: 2px; }
+.kicker { font: 600 12px/16px var(--font-sans); color: var(--ink-muted); letter-spacing: 0.04em; text-transform: uppercase; }
+.card-title { font: 600 17px/22px var(--font-sans); }
+.meta { font: 400 13px/18px var(--font-sans); color: var(--ink-muted); }
+.empty { padding: var(--space-4) var(--space-3); color: var(--ink-muted); }
+
+/* Session preview: metrics over video */
+.split { display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); align-items: start; }
+.video { position: relative; aspect-ratio: 16 / 9; border-radius: var(--radius-lg); overflow: hidden; background: var(--fill); font-variant-numeric: tabular-nums; color: var(--on-scrim); }
+.video svg.bg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.ov-top { position: absolute; top: var(--space-3); left: var(--space-3); padding: var(--space-2) var(--space-3); border-radius: var(--radius-pill); background: var(--scrim); }
+.ov-side { position: absolute; top: var(--space-3); right: var(--space-3); display: grid; justify-items: end; gap: var(--space-2); padding: var(--space-2) var(--space-3); border-radius: var(--radius-lg); background: var(--scrim); }
+.ov-bottom { position: absolute; left: var(--space-3); right: var(--space-3); bottom: var(--space-3); padding: var(--space-2) var(--space-3); border-radius: var(--radius-lg); background: var(--scrim); }
+.metric { display: flex; align-items: baseline; gap: 6px; }
+.metric b { font: 700 28px/34px var(--font-rounded); }
+.metric small { font: 600 13px/18px var(--font-sans); }
+
+/* Burn Bar */
+.burn { display: grid; gap: var(--space-1); }
+.burn-track { position: relative; display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; height: 8px; }
+.burn-track span { border-radius: var(--radius-pill); background: rgba(255,255,255,0.3); }
+.burn-track span.on { background: var(--on-scrim); }
+.burn-marker { position: absolute; top: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: var(--radius-pill); background: var(--on-scrim); transition: left 500ms cubic-bezier(0.2,0.8,0.2,1); }
+.burn p { font: 600 13px/18px var(--font-sans); }
+
+/* Summary card with rings */
+.summary { display: grid; gap: var(--space-4); padding: var(--space-4); border-radius: var(--radius-lg); background: var(--surface); }
+.summary-body { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: center; }
+.rings { flex: none; padding: var(--space-3); border-radius: var(--radius-lg); background: var(--ring-ground); }
+.rings svg { display: block; }
+.rings circle { fill: none; }
+.track { stroke-opacity: 0.25; }
+.prog { stroke-linecap: round; transition: stroke-dashoffset 900ms cubic-bezier(0.2,0.8,0.2,1); }
+.stats { flex: 1; min-width: 200px; margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: var(--space-3); }
+.stats dt { font: 400 13px/18px var(--font-sans); color: var(--ink-muted); }
+.stats dd { margin: 0; font: 700 28px/34px var(--font-rounded); font-variant-numeric: tabular-nums; }
+.stats dd small { font: 600 15px/20px var(--font-sans); color: var(--ink-muted); }
+.v-move { color: var(--move); } .v-ex { color: var(--exercise); } .v-stand { color: var(--stand); }
+
+/* Workout types grid */
+.types { display: grid; gap: var(--space-2); grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); list-style: none; margin: 0; padding: 0; }
+.types li { padding: var(--space-3); border-radius: var(--radius-lg); background: var(--surface); display: grid; gap: 2px; }
+.types b { font: 600 17px/22px var(--font-sans); }
+
+footer { font: 400 13px/18px var(--font-sans); color: var(--ink-muted); max-width: 65ch; }
+
+/* Glass tab bar */
+.tabbar { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--space-3) + env(safe-area-inset-bottom, 0px)); width: min(520px, calc(100% - 32px)); display: flex; gap: var(--space-2); z-index: 10; }
+.glass { background: var(--glass-tint); border: 1px solid var(--glass-edge); box-shadow: var(--shadow-specular), var(--shadow-glass); backdrop-filter: blur(22px) saturate(180%); -webkit-backdrop-filter: blur(22px) saturate(180%); }
+.tabs { flex: 1; display: flex; padding: 4px; border-radius: var(--radius-pill); }
+.tab { flex: 1; display: grid; justify-items: center; gap: 2px; padding: 6px 4px; border: 0; border-radius: var(--radius-pill); background: none; color: var(--ink); font: 600 10px/12px var(--font-sans); cursor: pointer; }
+.tab[aria-selected="true"] { background: var(--fill); }
+.search { flex: none; width: 56px; height: 56px; display: grid; place-items: center; border-radius: var(--radius-pill); color: var(--ink); cursor: pointer; }
+.ico { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+@media (prefers-reduced-motion: reduce) { .btn, .prog, .burn-marker { transition: none; } }
+@media (prefers-reduced-transparency: reduce) { .glass { background: var(--surface); backdrop-filter: none; -webkit-backdrop-filter: none; } }
+@media (prefers-contrast: more) { .glass { border-width: 2px; } }
+</style>
+</head>
+<body>
+<main>
+  <header class="top pad">
+    <p class="eyebrow">Unofficial design study</p>
+    <h1 class="large-title">Fitness+</h1>
+    <div class="seg" role="tablist" aria-label="Browse">
+      <button role="tab" aria-selected="true">For You</button>
+      <button role="tab" aria-selected="false">Explore</button>
+      <button role="tab" aria-selected="false">Library</button>
+    </div>
+  </header>
+
+  <section class="hero pad" aria-labelledby="hero-title">
+    <div class="hero-art" aria-hidden="true">
+      <svg viewBox="0 0 160 90" preserveAspectRatio="xMidYMid slice"><rect width="160" height="90" fill="#2c2c2e"/><circle cx="118" cy="40" r="46" fill="#3a3a3c"/><circle cx="34" cy="78" r="30" fill="#242426"/></svg>
+    </div>
+    <div class="hero-text">
+      <p class="kicker">New this week · HIIT</p>
+      <h2 class="hero-title" id="hero-title">Full-body intervals</h2>
+      <p class="meta">30 min · Upbeat Anthems · Equipment: none</p>
+    </div>
+    <div class="actions">
+      <button class="btn btn-primary" type="button">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l12-7.5z" fill="currentColor"/></svg>Let's Go
+      </button>
+      <button class="btn btn-secondary" type="button">Preview</button>
+      <button class="btn btn-secondary" type="button" aria-label="Add to Library">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+    </div>
+  </section>
+
+  <section class="shelf" aria-labelledby="browse-title">
+    <div class="shelf-head pad">
+      <h2 class="shelf-title" id="browse-title">Browse by workout</h2>
+      <span class="meta" id="count"></span>
+    </div>
+    <div class="chips pad" id="chips" aria-label="Filter by workout type"></div>
+    <div class="row" id="cards"></div>
+  </section>
+
+  <section class="split pad" aria-label="In a workout">
+    <div class="shelf">
+      <h2 class="shelf-title">In a workout</h2>
+      <div class="video" role="img" aria-label="Workout video with live metrics: 142 beats per minute, 12:48 elapsed, 214 calories, Burn Bar ahead of the pack">
+        <svg class="bg" viewBox="0 0 160 90" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="160" height="90" fill="#3a3a3c"/><circle cx="80" cy="96" r="54" fill="#48484a"/></svg>
+        <div class="ov-top metric"><b>12:48</b><small>elapsed</small></div>
+        <div class="ov-side">
+          <div class="metric"><b>142</b><small>BPM</small></div>
+          <div class="metric"><b>214</b><small>KCAL</small></div>
+        </div>
+        <div class="ov-bottom burn">
+          <div class="burn-track" id="burn"><span></span><span></span><span></span><span class="on"></span><span></span><i class="burn-marker" style="left:70%"></i></div>
+          <p id="burn-label">Ahead of the pack</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="shelf">
+      <h2 class="shelf-title">Summary</h2>
+      <article class="summary" aria-label="Workout summary, example data">
+        <div>
+          <p class="eyebrow">Example data</p>
+          <h3 class="shelf-title">Full-body intervals</h3>
+          <p class="meta">30 min · Today</p>
+        </div>
+        <div class="summary-body">
+          <div class="rings" role="img" aria-label="Move 80 percent, Exercise 60 percent, Stand 75 percent">
+            <svg width="132" height="132" viewBox="0 0 132 132" id="rings"></svg>
+          </div>
+          <dl class="stats">
+            <div><dt>Move</dt><dd class="v-move">480<small>/600 kcal</small></dd></div>
+            <div><dt>Exercise</dt><dd class="v-ex">18<small>/30 min</small></dd></div>
+            <div><dt>Stand</dt><dd class="v-stand">9<small>/12 hr</small></dd></div>
+            <div><dt>Avg heart rate</dt><dd>138<small> BPM</small></dd></div>
+          </dl>
+        </div>
+        <div class="actions">
+          <button class="btn btn-primary" type="button">Done</button>
+          <button class="btn btn-secondary" type="button">Next Workout</button>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="shelf pad" aria-labelledby="types-title">
+    <h2 class="shelf-title" id="types-title">Twelve workout types</h2>
+    <ul class="types" id="types"></ul>
+  </section>
+
+  <footer class="pad">
+    An unofficial design study built from the Fitness+ Reference design system. Not affiliated with or endorsed by Apple. No Apple logos, trainer names or imagery are used; artwork is placeholder.
+  </footer>
+</main>
+
+<nav class="tabbar" aria-label="Main">
+  <div class="tabs glass" role="tablist">
+    <button class="tab" role="tab" aria-selected="false"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/></svg>Summary</button>
+    <button class="tab" role="tab" aria-selected="true"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>Fitness+</button>
+    <button class="tab" role="tab" aria-selected="false"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="9" r="3"/><circle cx="16" cy="10" r="2.5"/><path d="M3 19c0-3 3-5 6-5s6 2 6 5M14 15c3 0 6 1.5 6 4"/></svg>Sharing</button>
+  </div>
+  <button class="search glass" type="button" aria-label="Search"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></svg></button>
+</nav>
+
+<script>
+const TYPES = [
+  ["HIIT", "Intervals"], ["Yoga", "Flow and strength"], ["Core", "Abs and back"],
+  ["Strength", "Dumbbells or bodyweight"], ["Pilates", "Mat-based"], ["Dance", "Cardio choreography"],
+  ["Cycling", "Indoor bike"], ["Treadmill", "Run or walk"], ["Rowing", "Indoor rower"],
+  ["Kickboxing", "Combos and cardio"], ["Mindful Cooldown", "Recovery"], ["Meditation", "Guided audio"]
+];
+const WORKOUTS = [
+  { type: "HIIT", title: "Full-body intervals", min: 30, music: "Upbeat Anthems" },
+  { type: "HIIT", title: "Quick burn", min: 10, music: "Latest Hits", done: true },
+  { type: "Yoga", title: "Morning flow", min: 20, music: "Chill Vibes" },
+  { type: "Core", title: "Core and balance", min: 10, music: "Hip Hop/R&B" },
+  { type: "Strength", title: "Upper body", min: 20, music: "Pure Workout" },
+  { type: "Strength", title: "Total body", min: 30, music: "Latest Hits", done: true },
+  { type: "Pilates", title: "Mat Pilates", min: 20, music: "Chill Vibes" },
+  { type: "Dance", title: "Dance cardio", min: 30, music: "Latest Hits" },
+  { type: "Cycling", title: "Rhythm ride", min: 45, music: "Throwback Hits" },
+  { type: "Treadmill", title: "Tempo run", min: 30, music: "Upbeat Anthems" },
+  { type: "Rowing", title: "Endurance row", min: 20, music: "Pure Workout" },
+  { type: "Kickboxing", title: "Combos", min: 20, music: "Hip Hop/R&B" },
+  { type: "Mindful Cooldown", title: "Post-run stretch", min: 10, music: "Chill Vibes" },
+  { type: "Meditation", title: "Calm", min: 10, music: "Ambient" }
+];
+
+const esc = s => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+
+function cardHTML(w) {
+  const check = w.done ? '<span class="card-check" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M5 12l5 5 9-10"/></svg></span>' : "";
+  return `<a class="card" href="#" aria-label="${esc(w.title)}, ${esc(w.type)}, ${w.min} min${w.done ? ", Completed" : ""}">
+    <div class="card-art">${esc(w.type)}${check}</div>
+    <div class="card-text"><p class="kicker">${esc(w.type)}</p><p class="card-title">${esc(w.title)}</p><p class="meta">${w.min} min · ${esc(w.music)}</p></div>
+  </a>`;
+}
+
+function renderCards(filter) {
+  const list = filter === "All" ? WORKOUTS : WORKOUTS.filter(w => w.type === filter);
+  document.getElementById("cards").innerHTML = list.length ? list.map(cardHTML).join("") : '<p class="empty">No workouts of this type yet.</p>';
+  document.getElementById("count").textContent = `${list.length} workout${list.length === 1 ? "" : "s"}`;
+}
+
+function renderChips() {
+  const el = document.getElementById("chips");
+  el.innerHTML = ["All", ...TYPES.map(t => t[0])].map((t, i) =>
+    `<button class="chip" type="button" aria-pressed="${i === 0}">${esc(t)}</button>`).join("");
+  el.addEventListener("click", e => {
+    const b = e.target.closest(".chip"); if (!b) return;
+    el.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", c === b));
+    renderCards(b.textContent);
+  });
+}
+
+function renderRings(values) {
+  const size = 132, w = 14, gap = 2, c = size / 2;
+  const names = ["move", "exercise", "stand"];
+  document.getElementById("rings").innerHTML = values.map((v, i) => {
+    const r = c - w / 2 - i * (w + gap), len = 2 * Math.PI * r, col = `var(--ring-${names[i]})`;
+    return `<g transform="rotate(-90 ${c} ${c})"><circle class="track" cx="${c}" cy="${c}" r="${r}" stroke="${col}" stroke-width="${w}"/>
+      <circle class="prog" cx="${c}" cy="${c}" r="${r}" stroke="${col}" stroke-width="${w}" stroke-dasharray="${len}" stroke-dashoffset="${len}" data-to="${len * (1 - Math.min(v, 1))}"/></g>`;
+  }).join("");
+  requestAnimationFrame(() => requestAnimationFrame(() =>
+    document.querySelectorAll("#rings .prog").forEach(p => p.style.strokeDashoffset = p.dataset.to)));
+}
+
+function wireTabs(selector, attr) {
+  document.querySelectorAll(selector).forEach(group => group.addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    group.querySelectorAll("button").forEach(x => x.setAttribute(attr, x === b));
+  }));
+}
+
+document.getElementById("types").innerHTML = TYPES.map(([n, d]) => `<li><b>${esc(n)}</b><span class="meta">${esc(d)}</span></li>`).join("");
+renderChips();
+renderCards("All");
+renderRings([0.8, 0.6, 0.75]);
+wireTabs(".seg, .tabs", "aria-selected");
+document.getElementById("cards").addEventListener("click", e => { if (e.target.closest(".card")) e.preventDefault(); });
+</script>
+</body>
+</html>
